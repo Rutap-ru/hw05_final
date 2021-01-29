@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Об авторе проекта{% endblock %}
+{% block content %}
+  <main role="main" class="container">
+      <div class="row">
+          <!-- Левый вспомогательный блок -->
+          <div class="col-md-3 mb-3 mt-1">
+              <div class="card">
+                  <div class="card-body">
+                      <ul class="list-group list-group-flush">
+                          <li class="list-group-item">
+                              <div class="h3">
+                                  Об авторе
+                              </div> 
+                          </li>
+                          <li class="list-group-item">
+                              <div class="h6 text-muted">
+                                  Николай, студент факультета Бэкенд. Когорта 12. Яндекс.Практикум
+                              </div>
+                          </li>
+                      </ul>                                               
+                  </div>                    
+              </div>                
+          </div>
+          <!-- Тело страницы -->
+          <div class="col-md-9">
+              <div class="card-body">                    
+                  <div class="card-text">
+                    <p>Занимаюсь веб-разработкой уже продолжительное время. До обучения в Яндекс.Практикуме разрабатывал сайты на php, много слышал/читал о языке программирования Python, но не как не мог начать его изучение.</p>
+                    <p>Начав обучение в Практикуме, познакомился с прекрасным питоновским фреймворком - Django. Разрабатывая данный проект на Django, этот фреймворк начинает мне нравится всё больше и больше.</p>
+                    <p>Планирую следующие свои проекты делать только на фреймворке Django.</p>
+                    <p>Мой аккаунт в Github: <a href="https://github.com/Rutap-ru" target="_blank">https://github.com/Rutap-ru</a></p>
+                  </div>                    
+              </div>                
+          </div>            
+      </div>        
+  </main>
+{% endblock %}
