@@ -63,8 +63,8 @@ def profile(request, username):
         except Follow.DoesNotExist:
             follow_user = False
 
-    subscriptions = user_profile.follower.all().count()
-    subscribers = user_profile.following.all().count()
+    subscriptions = user_profile.follower.count()
+    subscribers = user_profile.following.count()
 
     paginator = Paginator(post_list, POSTS_PER_PAGE)
 
@@ -96,8 +96,8 @@ def post_view(request, username, post_id):
         except Follow.DoesNotExist:
             follow_user = False
 
-    subscriptions = post.author.follower.all().count()
-    subscribers = post.author.following.all().count()
+    subscriptions = post.author.follower.count()
+    subscribers = post.author.following.count()
 
     form = CommentForm(request.POST or None)
     comments = post.comments.all()
@@ -169,7 +169,7 @@ def profile_follow(request, username):
     if user_profile != request.user:
         try:
             Follow.objects.create(user=request.user, author=user_profile)
-        except Follow.DoesNotExist:
+        except:
             return redirect('profile', username)
     return redirect('profile', username)
 
@@ -182,7 +182,7 @@ def profile_unfollow(request, username):
             author__username=username
         ).delete()
         return redirect('profile', username)
-    except Follow.DoesNotExist:
+    except:
         return redirect('profile', username)
 
 
