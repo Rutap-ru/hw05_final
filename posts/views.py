@@ -169,7 +169,7 @@ def profile_follow(request, username):
     if user_profile != request.user:
         try:
             Follow.objects.create(user=request.user, author=user_profile)
-        except:
+        except Exception:
             return redirect('profile', username)
     return redirect('profile', username)
 
@@ -182,7 +182,7 @@ def profile_unfollow(request, username):
             author__username=username
         ).delete()
         return redirect('profile', username)
-    except:
+    except Exception:
         return redirect('profile', username)
 
 
