@@ -26,6 +26,7 @@ class CommentsTests(TestCase):
         )
 
     def test_add_comment_autorized_user(self):
+        """Авторизированный пользователь может добавлять комментарии"""
         comment_count = Comment.objects.count()
         comment_text = 'Текст комментария'
         form_data = {
@@ -50,6 +51,7 @@ class CommentsTests(TestCase):
         self.assertEqual(new_comment.text, comment_text)
 
     def test_add_comments_guest_user(self):
+        """Ананимный пользователь не может добавлять комментарии"""
         comment_count = Comment.objects.count()
         comment_text = 'Текст комментария'
         form_data = {

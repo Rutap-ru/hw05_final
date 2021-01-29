@@ -158,7 +158,7 @@ def follow_index(request):
     page = paginator.get_page(page_number)
     return render(
         request,
-        "follow.html",
+        'follow.html',
         {'page': page, 'paginator': paginator}
     )
 
@@ -191,11 +191,11 @@ def page_not_found(request, exception):
     # выводить её в шаблон пользователской страницы 404 мы не станем
     return render(
         request,
-        "misc/404.html",
-        {"path": request.path},
+        'misc/404.html',
+        {'path': request.path},
         status=404
     )
 
 
 def server_error(request):
-    return render(request, "misc/500.html", status=500)
+    return render(request, 'misc/500.html', status=500)
