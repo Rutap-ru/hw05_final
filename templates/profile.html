@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Записи автора {{ user_profile.get_full_name }}{% endblock %}
-{% block header %}Все записи автора: {{ user_profile.get_full_name }}{% endblock %}
+{% block title %}Записи автора {{ author_profile.get_full_name }}{% endblock %}
+{% block header %}Все записи автора: {{ author_profile.get_full_name }}{% endblock %}
 {% block content %}
     {% load thumbnail %}
     <main role="main" class="container">

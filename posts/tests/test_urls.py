@@ -63,7 +63,7 @@ class PostURLTests(TestCase):
         """
         response = self.guest_client.get(reverse('new_post'), follow=True)
         self.assertRedirects(
-            response, '/auth/login/?next=/new/')
+            response, reverse('login') + '?next=/new/')
 
     def test_post_edit_url_author_access(self):
         """Страница редактирования поста, доступна для автора."""

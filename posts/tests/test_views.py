@@ -149,7 +149,7 @@ class PostPagesTests(TestCase):
         response = self.guest_client.get(
             reverse('profile', args=[self.user.username])
         )
-        self.assertEqual(response.context.get('user_profile'), self.user)
+        self.assertEqual(response.context.get('author_profile'), self.user)
         self.assertEqual(
             response.context.get('page').object_list[0],
             self.post
@@ -164,10 +164,10 @@ class PostPagesTests(TestCase):
             'post',
             kwargs={'username': self.user.username, 'post_id': self.post.id}
         ))
-        count_user_post = Post.objects.filter(author=self.user).count()
-        self.assertEqual(response.context.get('user_profile'), self.user)
+        author_posts_count = Post.objects.filter(author=self.user).count()
+        self.assertEqual(response.context.get('author_profile'), self.user)
         self.assertEqual(
-            response.context.get('user_post_count'), count_user_post
+            response.context.get('author_posts_count'), author_posts_count
         )
         self.assertEqual(response.context.get('post'), self.post)
         self.assertTrue(response.context.get('post_viewing'))

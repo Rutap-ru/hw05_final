@@ -26,32 +26,57 @@ class FollowTests(TestCase):
         self.authorized_not_subscriber = Client()
         self.authorized_not_subscriber.force_login(self.user_not_subscriber)
 
+        Follow.objects.create(
+            user=self.user_subscriber,
+            author=self.user_author,
+        )
+
+        self.post = Post.objects.create(
+            text='Текст поста',
+            author=self.user_author,
+        )
+
     def test_follow_autorized_user(self):
-        """Проверяем подписку и отписку пользовател на др. пользователя"""
+        """Проверяем подписку пользовател на др. пользователя"""
+        count_follow = Follow.objects.filter(
+            user=self.user_not_subscriber, author=self.user_author
+        ).count()
+        response = self.authorized_not_subscriber.get(
+            reverse('profile_follow', args=[self.user_author.username]),
+            follow=True
+        )
+        self.assertRedirects(
+            response,
+            reverse('profile', args=[self.user_author.username]),
+        )
+        new_count = Follow.objects.filter(
+            user=self.user_not_subscriber, author=self.user_author
+        ).count()
+        self.assertEqual(
+            new_count,
+            count_follow+1,
+        )
+
+    def test_unfollow_autorized_user(self):
+        """Проверяем отписку пользовател от др. пользователя"""
         count_follow = Follow.objects.filter(
             user=self.user_subscriber, author=self.user_author
         ).count()
-        act_folow = {
-            'profile_follow': count_follow+1,
-            'profile_unfollow': count_follow,
-        }
-        for reverse_name, count_total in act_folow.items():
-            with self.subTest():
-                response = self.authorized_subscriber.get(
-                    reverse(reverse_name, args=[self.user_author.username]),
-                    follow=True
-                )
-                self.assertRedirects(
-                    response,
-                    reverse('profile', args=[self.user_author.username]),
-                )
-                new_count = Follow.objects.filter(
-                    user=self.user_subscriber, author=self.user_author
-                ).count()
-                self.assertEqual(
-                    new_count,
-                    count_total,
-                )
+        response = self.authorized_subscriber.get(
+            reverse('profile_unfollow', args=[self.user_author.username]),
+            follow=True
+        )
+        self.assertRedirects(
+            response,
+            reverse('profile', args=[self.user_author.username]),
+        )
+        new_count = Follow.objects.filter(
+            user=self.user_subscriber, author=self.user_author
+        ).count()
+        self.assertEqual(
+            new_count,
+            count_follow-1,
+        )
 
     def test_follow_guest_user(self):
         """Не авторизированный пользователь при подписке
@@ -62,37 +87,12 @@ class FollowTests(TestCase):
             follow=True
         )
         self.assertRedirects(
-            response, f'/auth/login/?next=/{self.user_author.username}/follow/'
+            response,
+            reverse('login') + f'?next=/{self.user_author.username}/follow/'
         )
 
     def test_author_new_post_showing_to_subscribers(self):
-        """Добавленый пост отображается у подписчиков в ленте
-        и не отображается у не подписаных пользователей
-        """
-        self.authorized_subscriber.get(
-            reverse('profile_follow', args=[self.user_author.username]),
-            follow=True
-        )
-
-        response_subscriber = self.authorized_subscriber.get(
-            reverse('follow_index')
-        )
-        self.assertFalse(
-            response_subscriber.context.get('page').object_list
-        )
-
-        response_not_subscriber = self.authorized_not_subscriber.get(
-            reverse('follow_index')
-        )
-        self.assertFalse(
-            response_not_subscriber.context.get('page').object_list
-        )
-
-        post = Post.objects.create(
-            text='Текст поста',
-            author=self.user_author,
-        )
-
+        """Добавленый пост отображается у подписчиков в ленте"""
         response_subscriber = self.authorized_subscriber.get(
             reverse('follow_index')
         )
@@ -100,9 +100,11 @@ class FollowTests(TestCase):
             response_subscriber.context.get('page').object_list
         )
         self.assertEqual(
-            response_subscriber.context.get('page').object_list[0], post,
+            response_subscriber.context.get('page').object_list[0], self.post,
         )
 
+    def test_author_new_post_not_showing_to_not_subscribers(self):
+        """Добавленый пост не отображается у не подписаных пользователей"""
         response_not_subscriber = self.authorized_not_subscriber.get(
             reverse('follow_index')
         )

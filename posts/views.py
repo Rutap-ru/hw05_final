@@ -53,18 +53,15 @@ def new_post(request):
 
 
 def profile(request, username):
-    user_profile = get_object_or_404(User, username=username)
-    post_list = user_profile.author_post.all()
+    author_profile = get_object_or_404(User, username=username)
+    post_list = author_profile.author_post.all()
 
-    follow_user = False
-    if request.user.is_authenticated:
-        try:
-            follow_user = user_profile.following.get(user=request.user)
-        except Follow.DoesNotExist:
-            follow_user = False
+    follow_user = (request.user.is_authenticated
+                   and author_profile != request.user
+                   and author_profile.following.filter(user=request.user))
 
-    subscriptions = user_profile.follower.count()
-    subscribers = user_profile.following.count()
+    subscriptions = author_profile.follower.count()
+    subscribers = author_profile.following.count()
 
     paginator = Paginator(post_list, POSTS_PER_PAGE)
 
@@ -75,7 +72,7 @@ def profile(request, username):
         request,
         'profile.html',
         {
-            'user_profile': user_profile,
+            'author_profile': author_profile,
             'page': page,
             'paginator': paginator,
             'following': follow_user,
@@ -87,25 +84,22 @@ def profile(request, username):
 
 def post_view(request, username, post_id):
     post = get_object_or_404(Post, pk=post_id, author__username=username)
-    user_post_count = post.author.author_post.all().count()
+    author_posts_count = post.author.author_post.count()
 
-    follow_user = False
-    if request.user.is_authenticated:
-        try:
-            follow_user = post.author.following.get(user=request.user)
-        except Follow.DoesNotExist:
-            follow_user = False
+    follow_user = (request.user.is_authenticated
+                   and post.author != request.user
+                   and post.author.following.filter(user=request.user))
 
     subscriptions = post.author.follower.count()
     subscribers = post.author.following.count()
 
-    form = CommentForm(request.POST or None)
+    form = CommentForm()
     comments = post.comments.all()
     return render(
         request, 'post.html',
         {
-            'user_profile': post.author,
-            'user_post_count': user_post_count,
+            'author_profile': post.author,
+            'author_posts_count': author_posts_count,
             'post': post,
             'form': form,
             'comments': comments,
@@ -165,30 +159,24 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    user_profile = get_object_or_404(User, username=username)
-    if user_profile != request.user:
-        try:
-            Follow.objects.create(user=request.user, author=user_profile)
-        except Exception:
-            return redirect('profile', username)
+    author_profile = get_object_or_404(User, username=username)
+    if author_profile != request.user:
+        Follow.objects.get_or_create(user=request.user, author=author_profile)
     return redirect('profile', username)
 
 
 @login_required
 def profile_unfollow(request, username):
-    try:
-        Follow.objects.get(
-            user=request.user,
-            author__username=username
-        ).delete()
-        return redirect('profile', username)
-    except Exception:
-        return redirect('profile', username)
+    subscription = get_object_or_404(
+        Follow,
+        user=request.user,
+        author__username=username
+    )
+    subscription.delete()
+    return redirect('profile', username)
 
 
 def page_not_found(request, exception):
-    # Переменная exception содержит отладочную информацию,
-    # выводить её в шаблон пользователской страницы 404 мы не станем
     return render(
         request,
         'misc/404.html',

@@ -51,7 +51,7 @@ class CommentsTests(TestCase):
         self.assertEqual(new_comment.text, comment_text)
 
     def test_add_comments_guest_user(self):
-        """Ананимный пользователь не может добавлять комментарии"""
+        """Анонимный пользователь не может добавлять комментарии"""
         comment_count = Comment.objects.count()
         comment_text = 'Текст комментария'
         form_data = {
@@ -66,7 +66,7 @@ class CommentsTests(TestCase):
         )
         self.assertRedirects(
             response,
-            f'/auth/login/?next=/{self.post.author.username}'
-            f'/{self.post.id}/comment'
+            reverse('login') + f'?next=/{self.post.author.username}'
+            f'/{self.post.id}/comment/'
         )
         self.assertEqual(Comment.objects.count(), comment_count)
