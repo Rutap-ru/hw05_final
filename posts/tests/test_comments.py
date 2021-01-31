@@ -66,7 +66,9 @@ class CommentsTests(TestCase):
         )
         self.assertRedirects(
             response,
-            reverse('login') + f'?next=/{self.post.author.username}'
-            f'/{self.post.id}/comment/'
+            reverse('login') + '?next=' + reverse(
+                'add_comment',
+                args=[self.post.author.username, self.post.id]
+            )
         )
         self.assertEqual(Comment.objects.count(), comment_count)

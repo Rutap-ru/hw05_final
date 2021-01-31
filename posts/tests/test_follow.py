@@ -88,7 +88,10 @@ class FollowTests(TestCase):
         )
         self.assertRedirects(
             response,
-            reverse('login') + f'?next=/{self.user_author.username}/follow/'
+            reverse('login') + '?next=' + reverse(
+                'profile_follow',
+                args=[self.user_author.username]
+            )
         )
 
     def test_author_new_post_showing_to_subscribers(self):
